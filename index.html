@@ -406,8 +406,8 @@
         }
 
         .view-modal {
-            max-width: 600px;
-            padding: 32px 32px 28px;
+            max-width: 860px;
+            padding: 40px;
         }
 
         .modal h2 {
@@ -597,15 +597,15 @@
     <div class="overlay hidden" id="viewOverlay">
         <div class="modal view-modal">
             <button type="button" class="btn-ghost" id="closeViewBtn" style="position:absolute; top:14px; right:14px; padding:4px 12px; border:none; font-size:24px; color:var(--text-soft); cursor:pointer;">&times;</button>
-            <div style="display:flex; gap:28px; flex-wrap:wrap; margin-top:4px;">
-                <div style="flex:1; min-width:220px; display:flex; align-items:flex-start;">
-                    <img id="viewImg" style="width:100%; border-radius:4px; box-shadow:0 6px 20px rgba(0,0,0,0.18); object-fit:cover; aspect-ratio:3/4; background:#cbbfa0;" src="" alt="">
+            <div style="display:flex; gap:40px; flex-wrap:wrap; margin-top:4px;">
+                <div style="flex:1.4; min-width:300px; display:flex; align-items:flex-start;">
+                    <img id="viewImg" style="width:100%; border-radius:6px; box-shadow:0 8px 28px rgba(0,0,0,0.22); object-fit:cover; aspect-ratio:3/4; background:#cbbfa0;" src="" alt="">
                 </div>
-                <div style="flex:1.5; min-width:220px; display:flex; flex-direction:column;">
-                    <h2 id="viewName" style="margin:0 0 6px; font-size:34px; line-height:1.15;"></h2>
-                    <p id="viewAliases" style="margin:0 0 24px; font-family:'JetBrains Mono',monospace; font-size:13.5px; color:var(--text-soft); letter-spacing:0.02em;"></p>
-                    <div style="border-top:1px solid rgba(0,0,0,0.08); padding-top:18px; flex:1;">
-                        <p id="viewNotes" style="margin:0; font-size:15px; line-height:1.6; color:var(--text-dark); white-space:pre-wrap;"></p>
+                <div style="flex:1; min-width:260px; display:flex; flex-direction:column;">
+                    <h2 id="viewName" style="margin:0 0 8px; font-size:40px; line-height:1.15;"></h2>
+                    <p id="viewAliases" style="margin:0 0 28px; font-family:'JetBrains Mono',monospace; font-size:14.5px; color:var(--text-soft); letter-spacing:0.02em;"></p>
+                    <div style="border-top:1px solid rgba(0,0,0,0.08); padding-top:24px; flex:1;">
+                        <p id="viewNotes" style="margin:0; font-size:16px; line-height:1.6; color:var(--text-dark); white-space:pre-wrap;"></p>
                     </div>
                 </div>
             </div>
