@@ -402,6 +402,12 @@
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
             max-height: 88vh;
             overflow-y: auto;
+            position: relative;
+        }
+
+        .view-modal {
+            max-width: 600px;
+            padding: 32px 32px 28px;
         }
 
         .modal h2 {
@@ -556,10 +562,15 @@
                 <div class="img-input-row">
                     <button type="button" id="modeUpload" class="active">Upload photo</button>
                     <button type="button" id="modeUrl">Paste image URL</button>
+                    <button type="button" id="modePaste">Paste image</button>
                 </div>
                 <input type="file" id="charImageFile" accept="image/*">
                 <input type="text" id="charImageUrl" placeholder="https://…"
                     style="display:none;width:100%;padding:9px 10px;border-radius:5px;border:1px solid var(--paper-line);font-family:'Inter',sans-serif;font-size:13.5px;">
+                <div id="charImagePaste" tabindex="0"
+                    style="display:none;width:100%;padding:30px;text-align:center;border:2px dashed var(--paper-line);border-radius:5px;color:var(--text-soft);font-family:'Inter',sans-serif;font-size:13.5px;cursor:pointer;outline:none;transition:border-color 0.2s ease;">
+                    Click here and press Ctrl+V / Cmd+V to paste an image
+                </div>
                 <div class="preview-row" id="previewRow" style="display:none;">
                     <img id="previewImg" alt="Preview">
                     <button type="button" class="btn-ghost" id="clearImgBtn"
@@ -579,6 +590,24 @@
                 <button class="btn-ghost" id="cancelBtn"
                     style="color:var(--text-dark);border-color:var(--paper-line);">Cancel</button>
                 <button class="btn-gold" id="saveCharBtn">Save character</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay hidden" id="viewOverlay">
+        <div class="modal view-modal">
+            <button type="button" class="btn-ghost" id="closeViewBtn" style="position:absolute; top:14px; right:14px; padding:4px 12px; border:none; font-size:24px; color:var(--text-soft); cursor:pointer;">&times;</button>
+            <div style="display:flex; gap:28px; flex-wrap:wrap; margin-top:4px;">
+                <div style="flex:1; min-width:220px; display:flex; align-items:flex-start;">
+                    <img id="viewImg" style="width:100%; border-radius:4px; box-shadow:0 6px 20px rgba(0,0,0,0.18); object-fit:cover; aspect-ratio:3/4; background:#cbbfa0;" src="" alt="">
+                </div>
+                <div style="flex:1.5; min-width:220px; display:flex; flex-direction:column;">
+                    <h2 id="viewName" style="margin:0 0 6px; font-size:34px; line-height:1.15;"></h2>
+                    <p id="viewAliases" style="margin:0 0 24px; font-family:'JetBrains Mono',monospace; font-size:13.5px; color:var(--text-soft); letter-spacing:0.02em;"></p>
+                    <div style="border-top:1px solid rgba(0,0,0,0.08); padding-top:18px; flex:1;">
+                        <p id="viewNotes" style="margin:0; font-size:15px; line-height:1.6; color:var(--text-dark); white-space:pre-wrap;"></p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -684,6 +713,7 @@
                 chars.forEach(c => {
                     const card = document.createElement('div');
                     card.className = 'card';
+                    card.style.cursor = 'pointer';
                     card.innerHTML = `
         <div class="pin"></div>
         <img class="photo" ${c.image ? `src="${c.image}"` : ''} alt="${escapeHtml(c.name)}">
@@ -694,6 +724,10 @@
           <button class="icon-btn" data-edit="${c.id}">Edit</button>
           <button class="icon-btn danger" data-del="${c.id}">Remove</button>
         </div>`;
+                    card.addEventListener('click', (e) => {
+                        if (e.target.closest('.card-actions')) return;
+                        openViewModal(c.id);
+                    });
                     grid.appendChild(card);
                 });
 
@@ -759,11 +793,14 @@
                 imageMode = mode;
                 $('#modeUpload').classList.toggle('active', mode === 'upload');
                 $('#modeUrl').classList.toggle('active', mode === 'url');
+                $('#modePaste').classList.toggle('active', mode === 'paste');
                 $('#charImageFile').style.display = mode === 'upload' ? 'block' : 'none';
                 $('#charImageUrl').style.display = mode === 'url' ? 'block' : 'none';
+                $('#charImagePaste').style.display = mode === 'paste' ? 'block' : 'none';
             }
             $('#modeUpload').addEventListener('click', () => setImageMode('upload'));
             $('#modeUrl').addEventListener('click', () => setImageMode('url'));
+            $('#modePaste').addEventListener('click', () => setImageMode('paste'));
 
             $('#charImageFile').addEventListener('change', (e) => {
                 const file = e.target.files[0];
@@ -795,6 +832,41 @@
                     $('#previewRow').style.display = 'flex';
                 }
             });
+            $('#charImagePaste').addEventListener('paste', (e) => {
+                e.preventDefault();
+                const items = (e.clipboardData || window.clipboardData).items;
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
+                    if (item.type.indexOf('image') !== -1) {
+                        const blob = item.getAsFile();
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                            const img = new Image();
+                            img.onload = () => {
+                                const maxW = 320;
+                                const scale = Math.min(1, maxW / img.width);
+                                const canvas = document.createElement('canvas');
+                                canvas.width = img.width * scale;
+                                canvas.height = img.height * scale;
+                                const ctx = canvas.getContext('2d');
+                                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                                pendingImage = canvas.toDataURL('image/jpeg', 0.82);
+                                $('#previewImg').src = pendingImage;
+                                $('#previewRow').style.display = 'flex';
+                            };
+                            img.src = ev.target.result;
+                        };
+                        reader.readAsDataURL(blob);
+                        break;
+                    }
+                }
+            });
+            $('#charImagePaste').addEventListener('focus', () => {
+                $('#charImagePaste').style.borderColor = 'var(--gold-bright)';
+            });
+            $('#charImagePaste').addEventListener('blur', () => {
+                $('#charImagePaste').style.borderColor = 'var(--paper-line)';
+            });
             $('#clearImgBtn').addEventListener('click', () => {
                 pendingImage = null;
                 $('#previewRow').style.display = 'none';
@@ -804,6 +876,33 @@
 
             $('#cancelBtn').addEventListener('click', closeModal);
             overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+
+            const viewOverlay = $('#viewOverlay');
+            function openViewModal(charId) {
+                const c = currentBookData.characters.find(x => x.id === charId);
+                if (!c) return;
+                
+                $('#viewName').textContent = c.name;
+                $('#viewAliases').textContent = c.aliases || '';
+                $('#viewAliases').style.display = c.aliases ? 'block' : 'none';
+                $('#viewNotes').textContent = c.notes || 'No notes added.';
+                $('#viewNotes').style.fontStyle = c.notes ? 'normal' : 'italic';
+                $('#viewNotes').style.opacity = c.notes ? '1' : '0.6';
+                
+                const imgEl = $('#viewImg');
+                if (c.image) {
+                    imgEl.src = c.image;
+                    imgEl.style.filter = 'none';
+                } else {
+                    imgEl.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='38' r='18' fill='%23a89878'/><ellipse cx='50' cy='85' rx='32' ry='28' fill='%23a89878'/></svg>";
+                    imgEl.style.filter = 'sepia(0.12) contrast(1.02)';
+                }
+                
+                viewOverlay.classList.remove('hidden');
+            }
+            function closeViewModal() { viewOverlay.classList.add('hidden'); }
+            $('#closeViewBtn').addEventListener('click', closeViewModal);
+            viewOverlay.addEventListener('click', (e) => { if (e.target === viewOverlay) closeViewModal(); });
 
             $('#saveCharBtn').addEventListener('click', async () => {
                 const name = $('#charName').value.trim();
