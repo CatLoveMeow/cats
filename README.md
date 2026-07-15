@@ -10,7 +10,7 @@ Casting Board is a personal tool for assigning a face or photo to each character
 ## Accessing the Live App
 
 You can access the live version of this app hosted on GitHub Pages here:
-**[https://drifting-moon.github.io/feel/](https://drifting-moon.github.io/feel/)**
+**[https://catlovemeow.github.io/cats/](https://catlovemeow.github.io/cats/)**
 
 ## Running Locally
 
