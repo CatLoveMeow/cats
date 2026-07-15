@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Casting Board</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --ink: #1b2229;
+            --ink-2: #242c35;
+            --paper: #ece4d3;
+            --paper-dark: #dcd0b4;
+            --paper-line: #c9bb96;
+            --gold: #b8863b;
+            --gold-bright: #d9a54f;
+            --red: #7a2e2e;
+            --text-dark: #2a2420;
+            --text-soft: #5c5346;
+            --cream-text: #f1ead8;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: transparent;
+            color: var(--cream-text);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .board-app {
+            background:
+                radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.03), transparent 40%),
+                var(--ink);
+            min-height: 100vh;
+            padding: 28px 20px 60px;
+        }
+
+        .header {
+            max-width: 1100px;
+            margin: 0 auto 28px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid rgba(236, 228, 211, 0.15);
+            padding-bottom: 18px;
+        }
+
+        .title-block .eyebrow {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--gold-bright);
+            margin: 0 0 6px;
+        }
+
+        .title-block h1 {
+            font-family: 'Libre Caslon Text', serif;
+            font-weight: 700;
+            font-size: 34px;
+            margin: 0;
+            color: var(--cream-text);
+        }
+
+        .title-block h1 em {
+            color: var(--gold-bright);
+            font-style: italic;
+        }
+
+        .book-select {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        select#bookPicker {
+            background: var(--ink-2);
+            color: var(--cream-text);
+            border: 1px solid rgba(236, 228, 211, 0.25);
+            border-radius: 6px;
+            padding: 9px 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            max-width: 220px;
+        }
+
+        button {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 13.5px;
+            cursor: pointer;
+            border-radius: 6px;
+            border: 1px solid transparent;
+            padding: 9px 14px;
+            transition: transform .12s ease, background .15s ease;
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        button:focus-visible,
+        select:focus-visible,
+        input:focus-visible,
+        textarea:focus-visible {
+            outline: 2px solid var(--gold-bright);
+            outline-offset: 2px;
+        }
+
+        .btn-gold {
+            background: var(--gold);
+            color: #1b1611;
+            border-color: var(--gold);
+        }
+
+        .btn-gold:hover {
+            background: var(--gold-bright);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--cream-text);
+            border-color: rgba(236, 228, 211, 0.3);
+        }
+
+        .btn-ghost:hover {
+            background: rgba(236, 228, 211, 0.08);
+        }
+
+        .btn-danger {
+            background: transparent;
+            color: #e0a3a3;
+            border-color: rgba(224, 163, 163, 0.4);
+        }
+
+        .btn-danger:hover {
+            background: rgba(122, 46, 46, 0.25);
+        }
+
+        .toolbar {
+            max-width: 1100px;
+            margin: 0 auto 22px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .search-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 220px;
+            max-width: 340px;
+        }
+
+        .search-wrap input {
+            width: 100%;
+            padding: 9px 12px 9px 30px;
+            border-radius: 6px;
+            border: 1px solid rgba(236, 228, 211, 0.25);
+            background: var(--ink-2);
+            color: var(--cream-text);
+            font-family: 'Inter', sans-serif;
+            font-size: 13.5px;
+        }
+
+        .search-wrap svg {
+            position: absolute;
+            left: 9px;
+            top: 9px;
+            width: 14px;
+            height: 14px;
+            opacity: 0.5;
+        }
+
+        .board {
+            max-width: 1100px;
+            margin: 0 auto;
+            background:
+                repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.025) 0 2px, transparent 2px 4px),
+                var(--paper-dark);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.25);
+            box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.18), 0 20px 40px rgba(0, 0, 0, 0.35);
+            padding: 34px 30px;
+            min-height: 320px;
+            position: relative;
+        }
+
+        .board.empty-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 14px;
+            text-align: center;
+        }
+
+        .board.empty-state p {
+            color: var(--text-soft);
+            font-family: 'Inter', sans-serif;
+            max-width: 360px;
+            margin: 0;
+        }
+
+        .board.empty-state .empty-icon {
+            font-family: 'Libre Caslon Text', serif;
+            font-style: italic;
+            font-size: 22px;
+            color: var(--text-dark);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+            gap: 26px 22px;
+        }
+
+        .card {
+            background: var(--paper);
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            border-radius: 3px;
+            padding: 10px 10px 12px;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.28), 0 1px 0 rgba(255, 255, 255, 0.4) inset;
+            position: relative;
+            transition: transform .18s ease, box-shadow .18s ease;
+        }
+
+        .card:hover {
+            transform: rotate(0deg) translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35);
+            z-index: 5;
+        }
+
+        .card:nth-child(4n+1) {
+            transform: rotate(-2.2deg);
+        }
+
+        .card:nth-child(4n+2) {
+            transform: rotate(1.6deg);
+        }
+
+        .card:nth-child(4n+3) {
+            transform: rotate(-1.2deg);
+        }
+
+        .card:nth-child(4n+4) {
+            transform: rotate(2deg);
+        }
+
+        .card:nth-child(4n+1):hover {
+            transform: rotate(0deg) translateY(-3px) scale(1.03);
+        }
+
+        .card:nth-child(4n+2):hover {
+            transform: rotate(0deg) translateY(-3px) scale(1.03);
+        }
+
+        .card:nth-child(4n+3):hover {
+            transform: rotate(0deg) translateY(-3px) scale(1.03);
+        }
+
+        .card:nth-child(4n+4):hover {
+            transform: rotate(0deg) translateY(-3px) scale(1.03);
+        }
+
+        .pin {
+            position: absolute;
+            top: -7px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #e5734a, var(--red));
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.4);
+        }
+
+        .card .photo {
+            width: 100%;
+            aspect-ratio: 3/4;
+            border-radius: 2px;
+            object-fit: cover;
+            background: #cbbfa0 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='38' r='18' fill='%23a89878'/><ellipse cx='50' cy='85' rx='32' ry='28' fill='%23a89878'/></svg>") center/50% no-repeat;
+            display: block;
+            margin-bottom: 8px;
+            filter: sepia(0.12) contrast(1.02);
+        }
+
+        .card h3 {
+            font-family: 'Libre Caslon Text', serif;
+            font-size: 16px;
+            margin: 0 0 2px;
+            color: var(--text-dark);
+            line-height: 1.2;
+        }
+
+        .card .aliases {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10.5px;
+            color: var(--text-soft);
+            margin: 0 0 6px;
+            letter-spacing: 0.01em;
+        }
+
+        .card .notes {
+            font-size: 12px;
+            color: var(--text-soft);
+            margin: 0;
+            line-height: 1.4;
+            max-height: 52px;
+            overflow: hidden;
+        }
+
+        .card .card-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 9px;
+        }
+
+        .card .card-actions button {
+            flex: 1;
+            padding: 5px 6px;
+            font-size: 11.5px;
+            border-radius: 4px;
+        }
+
+        .icon-btn {
+            background: var(--paper-line);
+            color: var(--text-dark);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .icon-btn:hover {
+            background: #c7b98f;
+        }
+
+        .icon-btn.danger {
+            color: var(--red);
+        }
+
+        .icon-btn.danger:hover {
+            background: rgba(122, 46, 46, 0.15);
+        }
+
+        .add-card {
+            border: 2px dashed rgba(0, 0, 0, 0.22);
+            background: transparent;
+            box-shadow: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 180px;
+            color: var(--text-soft);
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transform: none !important;
+        }
+
+        .add-card:hover {
+            background: rgba(0, 0, 0, 0.04);
+            color: var(--text-dark);
+        }
+
+        /* modal */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 18, 22, 0.72);
+            backdrop-filter: blur(2px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 50;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .modal {
+            background: var(--paper);
+            color: var(--text-dark);
+            border-radius: 8px;
+            max-width: 420px;
+            width: 100%;
+            padding: 24px 24px 20px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            max-height: 88vh;
+            overflow-y: auto;
+        }
+
+        .modal h2 {
+            font-family: 'Libre Caslon Text', serif;
+            margin: 0 0 16px;
+            font-size: 21px;
+        }
+
+        .field {
+            margin-bottom: 14px;
+        }
+
+        .field label {
+            display: block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-soft);
+            margin-bottom: 5px;
+        }
+
+        .field input[type=text],
+        .field textarea {
+            width: 100%;
+            padding: 9px 10px;
+            border-radius: 5px;
+            border: 1px solid var(--paper-line);
+            background: #faf6ec;
+            color: var(--text-dark);
+            font-family: 'Inter', sans-serif;
+            font-size: 13.5px;
+        }
+
+        .field textarea {
+            resize: vertical;
+            min-height: 56px;
+        }
+
+        .img-input-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .img-input-row button {
+            font-size: 12px;
+            padding: 6px 10px;
+            background: var(--paper-dark);
+            color: var(--text-dark);
+            border: 1px solid var(--paper-line);
+        }
+
+        .img-input-row button.active {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: #1b1611;
+        }
+
+        .preview-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .preview-row img {
+            width: 56px;
+            height: 74px;
+            object-fit: cover;
+            border-radius: 3px;
+            border: 1px solid var(--paper-line);
+            background: var(--paper-dark);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .fine-print {
+            font-size: 11px;
+            color: var(--text-soft);
+            margin-top: 2px;
+        }
+
+        .status-msg {
+            font-size: 12px;
+            color: var(--red);
+            min-height: 16px;
+            margin-top: 4px;
+        }
+
+        @media (max-width:520px) {
+            .title-block h1 {
+                font-size: 26px;
+            }
+
+            .board {
+                padding: 22px 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="board-app">
+        <div class="header">
+            <div class="title-block">
+                <p class="eyebrow">the character casting board</p>
+                <h1>Put a face<br />to the <em>name</em></h1>
+            </div>
+            <div class="book-select">
+                <select id="bookPicker" aria-label="Choose a book"></select>
+                <button class="btn-ghost" id="newBookBtn">+ New book</button>
+                <button class="btn-danger" id="deleteBookBtn" title="Delete this book">Delete book</button>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <div class="search-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="7" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input type="text" id="searchInput" placeholder="Find a character…">
+            </div>
+            <span id="charCount"
+                style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:rgba(236,228,211,0.55);"></span>
+        </div>
+
+        <div class="board" id="board"></div>
+    </div>
+
+    <div class="overlay hidden" id="overlay">
+        <div class="modal">
+            <h2 id="modalTitle">Cast a character</h2>
+            <div class="field">
+                <label for="charName">Name</label>
+                <input type="text" id="charName" placeholder="e.g. Elizabeth Bennet">
+            </div>
+            <div class="field">
+                <label for="charAliases">Aliases / titles <span
+                        style="text-transform:none;letter-spacing:0;">(optional)</span></label>
+                <input type="text" id="charAliases" placeholder="e.g. Lizzy, Miss Bennet">
+            </div>
+            <div class="field">
+                <label>Face</label>
+                <div class="img-input-row">
+                    <button type="button" id="modeUpload" class="active">Upload photo</button>
+                    <button type="button" id="modeUrl">Paste image URL</button>
+                </div>
+                <input type="file" id="charImageFile" accept="image/*">
+                <input type="text" id="charImageUrl" placeholder="https://…"
+                    style="display:none;width:100%;padding:9px 10px;border-radius:5px;border:1px solid var(--paper-line);font-family:'Inter',sans-serif;font-size:13.5px;">
+                <div class="preview-row" id="previewRow" style="display:none;">
+                    <img id="previewImg" alt="Preview">
+                    <button type="button" class="btn-ghost" id="clearImgBtn"
+                        style="color:var(--text-dark);border-color:var(--paper-line);padding:5px 10px;font-size:12px;">Clear</button>
+                </div>
+                <p class="fine-print">Photos are resized and saved in this browser — only this device sees this board.
+                </p>
+            </div>
+            <div class="field">
+                <label for="charNotes">Notes <span
+                        style="text-transform:none;letter-spacing:0;">(optional)</span></label>
+                <textarea id="charNotes"
+                    placeholder="Anything that helps you remember them — age, house, role…"></textarea>
+            </div>
+            <p class="status-msg" id="statusMsg"></p>
+            <div class="modal-actions">
+                <button class="btn-ghost" id="cancelBtn"
+                    style="color:var(--text-dark);border-color:var(--paper-line);">Cancel</button>
+                <button class="btn-gold" id="saveCharBtn">Save character</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const INDEX_KEY = 'books-index';
+            const LAST_BOOK_KEY = 'last-book-id';
+            const bookKey = id => 'book-data:' + id;
+
+            let booksIndex = [];   // [{id,title}]
+            let currentBookId = null;
+            let currentBookData = null; // {title, characters:[{id,name,aliases,notes,image}]}
+            let editingCharId = null;
+            let pendingImage = null; // data URL or remote URL string
+            let imageMode = 'upload';
+
+            const $ = sel => document.querySelector(sel);
+            const board = $('#board');
+            const bookPicker = $('#bookPicker');
+            const searchInput = $('#searchInput');
+            const overlay = $('#overlay');
+            const statusMsg = $('#statusMsg');
+
+            // Plain browser localStorage — persists across closing the tab/browser,
+            // scoped to this device + browser only. No backend involved.
+            async function safeGet(key) {
+                try { return localStorage.getItem(key); }
+                catch (e) { return null; }
+            }
+            async function safeSet(key, value) {
+                try { localStorage.setItem(key, value); return true; }
+                catch (e) { console.error('storage set failed', e); return false; }
+            }
+            async function safeDelete(key) {
+                try { localStorage.removeItem(key); } catch (e) { }
+            }
+
+            function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+            async function init() {
+                const idxRaw = await safeGet(INDEX_KEY);
+                booksIndex = idxRaw ? JSON.parse(idxRaw) : [];
+                if (booksIndex.length === 0) {
+                    // seed with one starter book so the board isn't empty on first run
+                    const id = uid();
+                    booksIndex = [{ id, title: 'My current read' }];
+                    await safeSet(INDEX_KEY, JSON.stringify(booksIndex));
+                    await safeSet(bookKey(id), JSON.stringify({ title: 'My current read', characters: [] }));
+                }
+                const lastId = await safeGet(LAST_BOOK_KEY);
+                currentBookId = (lastId && booksIndex.find(b => b.id === lastId)) ? lastId : booksIndex[0].id;
+                renderBookPicker();
+                await loadCurrentBook();
+            }
+
+            function renderBookPicker() {
+                bookPicker.innerHTML = '';
+                booksIndex.forEach(b => {
+                    const opt = document.createElement('option');
+                    opt.value = b.id; opt.textContent = b.title;
+                    if (b.id === currentBookId) opt.selected = true;
+                    bookPicker.appendChild(opt);
+                });
+            }
+
+            async function loadCurrentBook() {
+                const raw = await safeGet(bookKey(currentBookId));
+                currentBookData = raw ? JSON.parse(raw) : { title: 'Untitled', characters: [] };
+                await safeSet(LAST_BOOK_KEY, currentBookId);
+                renderBoard();
+            }
+
+            async function saveCurrentBook() {
+                await safeSet(bookKey(currentBookId), JSON.stringify(currentBookData));
+            }
+
+            function renderBoard() {
+                const query = searchInput.value.trim().toLowerCase();
+                const chars = currentBookData.characters.filter(c => {
+                    if (!query) return true;
+                    return c.name.toLowerCase().includes(query) || (c.aliases || '').toLowerCase().includes(query);
+                });
+                $('#charCount').textContent = currentBookData.characters.length
+                    ? currentBookData.characters.length + ' character' + (currentBookData.characters.length === 1 ? '' : 's')
+                    : '';
+
+                board.classList.remove('empty-state');
+                board.innerHTML = '';
+
+                if (currentBookData.characters.length === 0) {
+                    board.classList.add('empty-state');
+                    board.innerHTML = `<div class="empty-icon">— empty board —</div>
+        <p>Add your first character to start putting faces to the names in this book.</p>
+        <button class="btn-gold" id="emptyAddBtn">+ Add a character</button>`;
+                    $('#emptyAddBtn').addEventListener('click', () => openModal());
+                    return;
+                }
+
+                const grid = document.createElement('div');
+                grid.className = 'cards-grid';
+
+                chars.forEach(c => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+        <div class="pin"></div>
+        <img class="photo" ${c.image ? `src="${c.image}"` : ''} alt="${escapeHtml(c.name)}">
+        <h3>${escapeHtml(c.name)}</h3>
+        ${c.aliases ? `<p class="aliases">${escapeHtml(c.aliases)}</p>` : ''}
+        ${c.notes ? `<p class="notes">${escapeHtml(c.notes)}</p>` : ''}
+        <div class="card-actions">
+          <button class="icon-btn" data-edit="${c.id}">Edit</button>
+          <button class="icon-btn danger" data-del="${c.id}">Remove</button>
+        </div>`;
+                    grid.appendChild(card);
+                });
+
+                const addCard = document.createElement('div');
+                addCard.className = 'card add-card';
+                addCard.textContent = '+ Add character';
+                addCard.addEventListener('click', () => openModal());
+                grid.appendChild(addCard);
+
+                board.appendChild(grid);
+
+                grid.querySelectorAll('[data-edit]').forEach(btn => {
+                    btn.addEventListener('click', () => openModal(btn.dataset.edit));
+                });
+                grid.querySelectorAll('[data-del]').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        if (!confirm('Remove this character from the board?')) return;
+                        currentBookData.characters = currentBookData.characters.filter(c => c.id !== btn.dataset.del);
+                        await saveCurrentBook();
+                        renderBoard();
+                    });
+                });
+            }
+
+            function escapeHtml(s) {
+                return (s || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+            }
+
+            // ---- modal ----
+            function openModal(charId) {
+                editingCharId = charId || null;
+                statusMsg.textContent = '';
+                pendingImage = null;
+                imageMode = 'upload';
+                setImageMode('upload');
+                $('#charImageFile').value = '';
+                $('#charImageUrl').value = '';
+                $('#previewRow').style.display = 'none';
+
+                if (charId) {
+                    const c = currentBookData.characters.find(x => x.id === charId);
+                    $('#modalTitle').textContent = 'Edit character';
+                    $('#charName').value = c.name;
+                    $('#charAliases').value = c.aliases || '';
+                    $('#charNotes').value = c.notes || '';
+                    if (c.image) {
+                        pendingImage = c.image;
+                        $('#previewImg').src = c.image;
+                        $('#previewRow').style.display = 'flex';
+                    }
+                } else {
+                    $('#modalTitle').textContent = 'Cast a character';
+                    $('#charName').value = '';
+                    $('#charAliases').value = '';
+                    $('#charNotes').value = '';
+                }
+                overlay.classList.remove('hidden');
+                $('#charName').focus();
+            }
+            function closeModal() { overlay.classList.add('hidden'); }
+
+            function setImageMode(mode) {
+                imageMode = mode;
+                $('#modeUpload').classList.toggle('active', mode === 'upload');
+                $('#modeUrl').classList.toggle('active', mode === 'url');
+                $('#charImageFile').style.display = mode === 'upload' ? 'block' : 'none';
+                $('#charImageUrl').style.display = mode === 'url' ? 'block' : 'none';
+            }
+            $('#modeUpload').addEventListener('click', () => setImageMode('upload'));
+            $('#modeUrl').addEventListener('click', () => setImageMode('url'));
+
+            $('#charImageFile').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const maxW = 320;
+                        const scale = Math.min(1, maxW / img.width);
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width * scale;
+                        canvas.height = img.height * scale;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        pendingImage = canvas.toDataURL('image/jpeg', 0.82);
+                        $('#previewImg').src = pendingImage;
+                        $('#previewRow').style.display = 'flex';
+                    };
+                    img.src = ev.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+            $('#charImageUrl').addEventListener('input', (e) => {
+                const val = e.target.value.trim();
+                if (val) {
+                    pendingImage = val;
+                    $('#previewImg').src = val;
+                    $('#previewRow').style.display = 'flex';
+                }
+            });
+            $('#clearImgBtn').addEventListener('click', () => {
+                pendingImage = null;
+                $('#previewRow').style.display = 'none';
+                $('#charImageFile').value = '';
+                $('#charImageUrl').value = '';
+            });
+
+            $('#cancelBtn').addEventListener('click', closeModal);
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+
+            $('#saveCharBtn').addEventListener('click', async () => {
+                const name = $('#charName').value.trim();
+                if (!name) {
+                    statusMsg.textContent = 'Give this character a name first.';
+                    return;
+                }
+                const aliases = $('#charAliases').value.trim();
+                const notes = $('#charNotes').value.trim();
+                if (editingCharId) {
+                    const c = currentBookData.characters.find(x => x.id === editingCharId);
+                    c.name = name; c.aliases = aliases; c.notes = notes; c.image = pendingImage || null;
+                } else {
+                    currentBookData.characters.push({ id: uid(), name, aliases, notes, image: pendingImage || null });
+                }
+                const ok = await saveCurrentBookSafe();
+                if (!ok) {
+                    statusMsg.textContent = 'Could not save — try a smaller photo or a URL instead.';
+                    return;
+                }
+                closeModal();
+                renderBoard();
+            });
+
+            async function saveCurrentBookSafe() {
+                try {
+                    localStorage.setItem(bookKey(currentBookId), JSON.stringify(currentBookData));
+                    return true;
+                } catch (e) { return false; }
+            }
+
+            // ---- books ----
+            bookPicker.addEventListener('change', async (e) => {
+                currentBookId = e.target.value;
+                await loadCurrentBook();
+            });
+
+            $('#newBookBtn').addEventListener('click', async () => {
+                const title = prompt('Title of the new book:');
+                if (!title || !title.trim()) return;
+                const id = uid();
+                booksIndex.push({ id, title: title.trim() });
+                await safeSet(INDEX_KEY, JSON.stringify(booksIndex));
+                await safeSet(bookKey(id), JSON.stringify({ title: title.trim(), characters: [] }));
+                currentBookId = id;
+                renderBookPicker();
+                await loadCurrentBook();
+            });
+
+            $('#deleteBookBtn').addEventListener('click', async () => {
+                if (booksIndex.length <= 1) {
+                    alert('You need at least one book on the shelf.');
+                    return;
+                }
+                const book = booksIndex.find(b => b.id === currentBookId);
+                if (!confirm(`Delete "${book.title}" and everyone cast in it? This can't be undone.`)) return;
+                booksIndex = booksIndex.filter(b => b.id !== currentBookId);
+                await safeSet(INDEX_KEY, JSON.stringify(booksIndex));
+                await safeDelete(bookKey(currentBookId));
+                currentBookId = booksIndex[0].id;
+                renderBookPicker();
+                await loadCurrentBook();
+            });
+
+            searchInput.addEventListener('input', renderBoard);
+
+            init();
+        })();
+    </script>
+
+</body>
+
+</html>
