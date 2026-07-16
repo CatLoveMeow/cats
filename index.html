@@ -620,6 +620,62 @@
             box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
             background: #cbbfa0;
             display: block;
+            cursor: zoom-in;
+        }
+
+        /* full-detail zoom lightbox */
+        .zoom-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 12, 15, 0.94);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        .zoom-overlay img {
+            max-width: none;
+            max-height: none;
+            will-change: transform;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        .zoom-close-btn {
+            position: absolute;
+            top: 18px;
+            right: 22px;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(236, 228, 211, 0.12);
+            color: var(--cream-text);
+            border: 1px solid rgba(236, 228, 211, 0.3);
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .zoom-close-btn:hover {
+            background: rgba(236, 228, 211, 0.22);
+        }
+
+        .zoom-hint {
+            position: absolute;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.03em;
+            color: rgba(241, 234, 216, 0.55);
+            white-space: nowrap;
         }
 
         .view-nav-btn {
@@ -785,6 +841,12 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="zoom-overlay hidden" id="zoomOverlay">
+        <button type="button" class="zoom-close-btn" id="zoomCloseBtn" aria-label="Close zoomed image">&times;</button>
+        <img id="zoomImg" src="" alt="">
+        <span class="zoom-hint">scroll or pinch to zoom · drag to pan · double-click to reset</span>
     </div>
 
     <script>
@@ -1183,10 +1245,111 @@
                 renderViewImage();
             });
             document.addEventListener('keydown', (e) => {
+                if (!zoomOverlay.classList.contains('hidden')) {
+                    if (e.key === 'Escape') closeZoom();
+                    return;
+                }
                 if (viewOverlay.classList.contains('hidden')) return;
                 if (e.key === 'ArrowLeft') $('#viewPrevBtn').click();
                 if (e.key === 'ArrowRight') $('#viewNextBtn').click();
                 if (e.key === 'Escape') closeViewModal();
+            });
+
+            // ---- click-to-zoom lightbox for viewing full detail ----
+            const zoomOverlay = $('#zoomOverlay');
+            const zoomImg = $('#zoomImg');
+            let zoomScale = 1, zoomPanX = 0, zoomPanY = 0;
+            let isPanning = false, panPointerStart = { x: 0, y: 0 }, panStart = { x: 0, y: 0 };
+            const ZOOM_MIN = 1, ZOOM_MAX = 6;
+
+            function applyZoomTransform() {
+                zoomImg.style.transform = `translate(-50%, -50%) translate(${zoomPanX}px, ${zoomPanY}px) scale(${zoomScale})`;
+                zoomOverlay.style.cursor = zoomScale > 1 ? (isPanning ? 'grabbing' : 'grab') : 'zoom-out';
+            }
+
+            function clampPan() {
+                // Keep the drag from flinging the image indefinitely off-screen.
+                const maxPan = 400 * zoomScale;
+                zoomPanX = Math.max(-maxPan, Math.min(maxPan, zoomPanX));
+                zoomPanY = Math.max(-maxPan, Math.min(maxPan, zoomPanY));
+            }
+
+            function openZoom(src) {
+                zoomImg.src = src;
+                zoomScale = 1;
+                zoomPanX = 0;
+                zoomPanY = 0;
+                zoomImg.style.position = 'absolute';
+                zoomImg.style.left = '50%';
+                zoomImg.style.top = '50%';
+                zoomImg.style.width = 'auto';
+                zoomImg.style.height = 'auto';
+                zoomImg.style.maxWidth = '92vw';
+                zoomImg.style.maxHeight = '92vh';
+                applyZoomTransform();
+                zoomOverlay.classList.remove('hidden');
+            }
+            function closeZoom() {
+                zoomOverlay.classList.add('hidden');
+            }
+
+            $('#viewImg').addEventListener('click', () => {
+                if (viewCharImages[viewIndex]) openZoom(viewCharImages[viewIndex]);
+            });
+            $('#zoomCloseBtn').addEventListener('click', closeZoom);
+
+            zoomOverlay.addEventListener('click', (e) => {
+                // Clicking the dark backdrop (not the image, not while panning) closes it.
+                if (e.target === zoomOverlay && zoomScale === 1) closeZoom();
+            });
+
+            zoomOverlay.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const delta = -e.deltaY * 0.0025;
+                const prevScale = zoomScale;
+                zoomScale = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, zoomScale + delta * zoomScale));
+                if (zoomScale === ZOOM_MIN) { zoomPanX = 0; zoomPanY = 0; }
+                else clampPan();
+                applyZoomTransform();
+            }, { passive: false });
+
+            let dragMoved = false;
+
+            zoomImg.addEventListener('pointerdown', (e) => {
+                if (zoomScale <= 1) return;
+                isPanning = true;
+                dragMoved = false;
+                panPointerStart = { x: e.clientX, y: e.clientY };
+                panStart = { x: zoomPanX, y: zoomPanY };
+                zoomImg.setPointerCapture(e.pointerId);
+                applyZoomTransform();
+            });
+            zoomImg.addEventListener('pointermove', (e) => {
+                if (!isPanning) return;
+                if (Math.abs(e.clientX - panPointerStart.x) > 3 || Math.abs(e.clientY - panPointerStart.y) > 3) dragMoved = true;
+                zoomPanX = panStart.x + (e.clientX - panPointerStart.x);
+                zoomPanY = panStart.y + (e.clientY - panPointerStart.y);
+                clampPan();
+                applyZoomTransform();
+            });
+            ['pointerup', 'pointercancel', 'pointerleave'].forEach(evt => {
+                zoomImg.addEventListener(evt, () => { isPanning = false; applyZoomTransform(); });
+            });
+
+            zoomImg.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (dragMoved) { dragMoved = false; return; }
+                if (zoomScale === 1) closeZoom();
+            });
+
+            zoomImg.addEventListener('dblclick', (e) => {
+                e.stopPropagation();
+                if (zoomScale > 1) {
+                    zoomScale = 1; zoomPanX = 0; zoomPanY = 0;
+                } else {
+                    zoomScale = 2.5;
+                }
+                applyZoomTransform();
             });
 
             $('#saveCharBtn').addEventListener('click', async () => {
