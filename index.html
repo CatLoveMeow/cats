@@ -287,15 +287,37 @@
             box-shadow: 0 2px 3px rgba(0, 0, 0, 0.4);
         }
 
-        .card .photo {
+        .card .photo-wrap {
+            position: relative;
             width: 100%;
             aspect-ratio: 3/4;
             border-radius: 2px;
-            object-fit: cover;
-            background: #cbbfa0 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='38' r='18' fill='%23a89878'/><ellipse cx='50' cy='85' rx='32' ry='28' fill='%23a89878'/></svg>") center/50% no-repeat;
-            display: block;
             margin-bottom: 8px;
+            overflow: hidden;
+            background: #cbbfa0 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='38' r='18' fill='%23a89878'/><ellipse cx='50' cy='85' rx='32' ry='28' fill='%23a89878'/></svg>") center/50% no-repeat;
+        }
+
+        .card .photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
             filter: sepia(0.12) contrast(1.02);
+            backface-visibility: hidden;
+            transform: translateZ(0);
+        }
+
+        .card .photo-count {
+            position: absolute;
+            bottom: 6px;
+            right: 6px;
+            background: rgba(27, 34, 41, 0.72);
+            color: var(--cream-text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10.5px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            letter-spacing: 0.02em;
         }
 
         .card h3 {
@@ -467,20 +489,101 @@
             color: #1b1611;
         }
 
-        .preview-row {
+        .url-add-row {
             display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 6px;
+            gap: 8px;
+            margin-bottom: 8px;
         }
 
-        .preview-row img {
-            width: 56px;
-            height: 74px;
+        .url-add-row input {
+            flex: 1;
+        }
+
+        .url-add-row button {
+            flex-shrink: 0;
+            padding: 0 14px;
+        }
+
+        /* multi-image gallery inside the edit modal */
+        .gallery-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .gallery-item {
+            position: relative;
+            width: 62px;
+            flex-shrink: 0;
+        }
+
+        .gallery-item img {
+            width: 62px;
+            height: 82px;
             object-fit: cover;
-            border-radius: 3px;
-            border: 1px solid var(--paper-line);
+            border-radius: 4px;
+            border: 2px solid var(--paper-line);
+            display: block;
+            cursor: pointer;
             background: var(--paper-dark);
+        }
+
+        .gallery-item.is-cover img {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 1px var(--gold);
+        }
+
+        .gallery-item .cover-badge {
+            position: absolute;
+            top: -7px;
+            left: -4px;
+            background: var(--gold);
+            color: #1b1611;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 8.5px;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 8px;
+            letter-spacing: 0.03em;
+        }
+
+        .gallery-item .remove-x {
+            position: absolute;
+            top: -7px;
+            right: -6px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--red);
+            color: #fff;
+            border: none;
+            font-size: 12px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .gallery-add-tile {
+            width: 62px;
+            height: 82px;
+            border-radius: 4px;
+            border: 2px dashed var(--paper-line);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-soft);
+            font-size: 22px;
+            cursor: pointer;
+            background: transparent;
+            flex-shrink: 0;
+        }
+
+        .gallery-add-tile:hover {
+            background: rgba(0, 0, 0, 0.04);
         }
 
         .modal-actions {
@@ -501,6 +604,74 @@
             color: var(--red);
             min-height: 16px;
             margin-top: 4px;
+        }
+
+        /* view modal gallery */
+        .view-photo-wrap {
+            position: relative;
+            width: 100%;
+        }
+
+        .view-photo-wrap img#viewImg {
+            width: 100%;
+            max-height: 68vh;
+            object-fit: contain;
+            border-radius: 6px;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+            background: #cbbfa0;
+            display: block;
+        }
+
+        .view-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(27, 34, 41, 0.55);
+            color: var(--cream-text);
+            border: none;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .view-nav-btn:hover {
+            background: rgba(27, 34, 41, 0.8);
+        }
+
+        .view-nav-btn.prev {
+            left: 8px;
+        }
+
+        .view-nav-btn.next {
+            right: 8px;
+        }
+
+        .view-thumbs {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .view-thumbs img {
+            width: 46px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 3px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        .view-thumbs img.active {
+            border-color: var(--gold);
+            opacity: 1;
         }
 
         @media (max-width:520px) {
@@ -558,26 +729,25 @@
                 <input type="text" id="charAliases" placeholder="e.g. Lizzy, Miss Bennet">
             </div>
             <div class="field">
-                <label>Face</label>
+                <label>Faces <span style="text-transform:none;letter-spacing:0;">(add as many as you like)</span></label>
                 <div class="img-input-row">
                     <button type="button" id="modeUpload" class="active">Upload photo</button>
                     <button type="button" id="modeUrl">Paste image URL</button>
                     <button type="button" id="modePaste">Paste image</button>
                 </div>
-                <input type="file" id="charImageFile" accept="image/*">
-                <input type="text" id="charImageUrl" placeholder="https://…"
-                    style="display:none;width:100%;padding:9px 10px;border-radius:5px;border:1px solid var(--paper-line);font-family:'Inter',sans-serif;font-size:13.5px;">
+                <input type="file" id="charImageFile" accept="image/*" multiple>
+                <div class="url-add-row" id="urlAddRow" style="display:none;">
+                    <input type="text" id="charImageUrl" placeholder="https://…">
+                    <button type="button" class="btn-gold" id="addUrlBtn">Add</button>
+                </div>
                 <div id="charImagePaste" tabindex="0"
                     style="display:none;width:100%;padding:30px;text-align:center;border:2px dashed var(--paper-line);border-radius:5px;color:var(--text-soft);font-family:'Inter',sans-serif;font-size:13.5px;cursor:pointer;outline:none;transition:border-color 0.2s ease;">
-                    Click here and press Ctrl+V / Cmd+V to paste an image
+                    Click here and press Ctrl+V / Cmd+V to paste an image — paste again to add more
                 </div>
-                <div class="preview-row" id="previewRow" style="display:none;">
-                    <img id="previewImg" alt="Preview">
-                    <button type="button" class="btn-ghost" id="clearImgBtn"
-                        style="color:var(--text-dark);border-color:var(--paper-line);padding:5px 10px;font-size:12px;">Clear</button>
-                </div>
-                <p class="fine-print">Photos are resized and saved in this browser — only this device sees this board.
-                </p>
+                <div class="gallery-row" id="galleryRow"></div>
+                <p class="fine-print">The first photo (marked <strong>cover</strong>) is what shows on the board.
+                    Click any thumbnail to make it the cover, or use × to remove it. Photos are saved in this
+                    browser — only this device sees this board.</p>
             </div>
             <div class="field">
                 <label for="charNotes">Notes <span
@@ -598,8 +768,13 @@
         <div class="modal view-modal">
             <button type="button" class="btn-ghost" id="closeViewBtn" style="position:absolute; top:14px; right:14px; padding:4px 12px; border:none; font-size:24px; color:var(--text-soft); cursor:pointer;">&times;</button>
             <div style="display:flex; gap:40px; flex-wrap:wrap; margin-top:4px;">
-                <div style="flex:1.4; min-width:300px; display:flex; align-items:flex-start;">
-                    <img id="viewImg" style="width:100%; border-radius:6px; box-shadow:0 8px 28px rgba(0,0,0,0.22); background:#cbbfa0;" src="" alt="">
+                <div style="flex:1.4; min-width:300px;">
+                    <div class="view-photo-wrap">
+                        <img id="viewImg" src="" alt="">
+                        <button type="button" class="view-nav-btn prev" id="viewPrevBtn" aria-label="Previous photo">&#8249;</button>
+                        <button type="button" class="view-nav-btn next" id="viewNextBtn" aria-label="Next photo">&#8250;</button>
+                    </div>
+                    <div class="view-thumbs" id="viewThumbs"></div>
                 </div>
                 <div style="flex:1; min-width:260px; display:flex; flex-direction:column;">
                     <h2 id="viewName" style="margin:0 0 8px; font-size:40px; line-height:1.15;"></h2>
@@ -620,10 +795,12 @@
 
             let booksIndex = [];   // [{id,title}]
             let currentBookId = null;
-            let currentBookData = null; // {title, characters:[{id,name,aliases,notes,image}]}
+            let currentBookData = null; // {title, characters:[{id,name,aliases,notes,images:[]}]}
             let editingCharId = null;
-            let pendingImage = null; // data URL or remote URL string
+            let pendingImages = []; // array of data URLs / remote URLs, index 0 = cover
             let imageMode = 'upload';
+            let viewCharImages = [];
+            let viewIndex = 0;
 
             const $ = sel => document.querySelector(sel);
             const board = $('#board');
@@ -647,6 +824,15 @@
             }
 
             function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+            // Migrate any legacy single-`image` characters to the `images` array shape.
+            function migrateCharacter(c) {
+                if (!c.images) {
+                    c.images = c.image ? [c.image] : [];
+                }
+                delete c.image;
+                return c;
+            }
 
             async function init() {
                 const idxRaw = await safeGet(INDEX_KEY);
@@ -677,6 +863,7 @@
             async function loadCurrentBook() {
                 const raw = await safeGet(bookKey(currentBookId));
                 currentBookData = raw ? JSON.parse(raw) : { title: 'Untitled', characters: [] };
+                currentBookData.characters = (currentBookData.characters || []).map(migrateCharacter);
                 await safeSet(LAST_BOOK_KEY, currentBookId);
                 renderBoard();
             }
@@ -711,12 +898,17 @@
                 grid.className = 'cards-grid';
 
                 chars.forEach(c => {
+                    const cover = c.images && c.images[0];
+                    const extra = c.images && c.images.length > 1 ? c.images.length : 0;
                     const card = document.createElement('div');
                     card.className = 'card';
                     card.style.cursor = 'pointer';
                     card.innerHTML = `
         <div class="pin"></div>
-        <img class="photo" ${c.image ? `src="${c.image}"` : ''} alt="${escapeHtml(c.name)}">
+        <div class="photo-wrap">
+          <img class="photo" ${cover ? `src="${cover}" loading="lazy" decoding="async"` : ''} alt="${escapeHtml(c.name)}">
+          ${extra ? `<span class="photo-count">${extra} photos</span>` : ''}
+        </div>
         <h3>${escapeHtml(c.name)}</h3>
         ${c.aliases ? `<p class="aliases">${escapeHtml(c.aliases)}</p>` : ''}
         ${c.notes ? `<p class="notes">${escapeHtml(c.notes)}</p>` : ''}
@@ -756,16 +948,71 @@
                 return (s || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
             }
 
+            // ---- high quality image resizing ----
+            // Scales by the LONGEST side (not just width) so portrait photos don't
+            // stay oversized while landscape photos get over-compressed, and keeps
+            // enough resolution (1400px longest side, 0.92 JPEG quality) that photos
+            // still look sharp when opened large in the view modal.
+            function resizeImage(dataUrl) {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const maxDim = 1400;
+                        const longest = Math.max(img.width, img.height);
+                        const scale = Math.min(1, maxDim / longest);
+                        const w = Math.max(1, Math.round(img.width * scale));
+                        const h = Math.max(1, Math.round(img.height * scale));
+                        const canvas = document.createElement('canvas');
+                        canvas.width = w;
+                        canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = 'high';
+                        ctx.drawImage(img, 0, 0, w, h);
+                        resolve(canvas.toDataURL('image/jpeg', 0.92));
+                    };
+                    img.onerror = () => resolve(dataUrl);
+                    img.src = dataUrl;
+                });
+            }
+
+            function fileToDataUrl(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => resolve(ev.target.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            async function addImageFromFile(file) {
+                const raw = await fileToDataUrl(file);
+                const resized = await resizeImage(raw);
+                pendingImages.push(resized);
+                renderGallery();
+            }
+
+            async function addImageFromBlob(blob) {
+                const raw = await fileToDataUrl(blob);
+                const resized = await resizeImage(raw);
+                pendingImages.push(resized);
+                renderGallery();
+            }
+
+            function addImageFromUrl(url) {
+                pendingImages.push(url);
+                renderGallery();
+            }
+
             // ---- modal ----
             function openModal(charId) {
                 editingCharId = charId || null;
                 statusMsg.textContent = '';
-                pendingImage = null;
+                pendingImages = [];
                 imageMode = 'upload';
                 setImageMode('upload');
                 $('#charImageFile').value = '';
                 $('#charImageUrl').value = '';
-                $('#previewRow').style.display = 'none';
 
                 if (charId) {
                     const c = currentBookData.characters.find(x => x.id === charId);
@@ -773,21 +1020,54 @@
                     $('#charName').value = c.name;
                     $('#charAliases').value = c.aliases || '';
                     $('#charNotes').value = c.notes || '';
-                    if (c.image) {
-                        pendingImage = c.image;
-                        $('#previewImg').src = c.image;
-                        $('#previewRow').style.display = 'flex';
-                    }
+                    pendingImages = (c.images || []).slice();
                 } else {
                     $('#modalTitle').textContent = 'Cast a character';
                     $('#charName').value = '';
                     $('#charAliases').value = '';
                     $('#charNotes').value = '';
                 }
+                renderGallery();
                 overlay.classList.remove('hidden');
                 $('#charName').focus();
             }
             function closeModal() { overlay.classList.add('hidden'); }
+
+            function renderGallery() {
+                const row = $('#galleryRow');
+                row.innerHTML = '';
+                pendingImages.forEach((src, i) => {
+                    const item = document.createElement('div');
+                    item.className = 'gallery-item' + (i === 0 ? ' is-cover' : '');
+                    item.innerHTML = `
+            ${i === 0 ? '<span class="cover-badge">cover</span>' : ''}
+            <img src="${src}" alt="Photo ${i + 1}">
+            <button type="button" class="remove-x" title="Remove photo" data-idx="${i}">&times;</button>`;
+                    item.querySelector('img').addEventListener('click', () => {
+                        if (i === 0) return;
+                        const [moved] = pendingImages.splice(i, 1);
+                        pendingImages.unshift(moved);
+                        renderGallery();
+                    });
+                    item.querySelector('.remove-x').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        pendingImages.splice(i, 1);
+                        renderGallery();
+                    });
+                    row.appendChild(item);
+                });
+
+                const addTile = document.createElement('div');
+                addTile.className = 'gallery-add-tile';
+                addTile.textContent = '+';
+                addTile.title = 'Add a photo using the option above';
+                addTile.addEventListener('click', () => {
+                    if (imageMode === 'upload') $('#charImageFile').click();
+                    else if (imageMode === 'url') $('#charImageUrl').focus();
+                    else $('#charImagePaste').focus();
+                });
+                row.appendChild(addTile);
+            }
 
             function setImageMode(mode) {
                 imageMode = mode;
@@ -795,69 +1075,43 @@
                 $('#modeUrl').classList.toggle('active', mode === 'url');
                 $('#modePaste').classList.toggle('active', mode === 'paste');
                 $('#charImageFile').style.display = mode === 'upload' ? 'block' : 'none';
-                $('#charImageUrl').style.display = mode === 'url' ? 'block' : 'none';
+                $('#urlAddRow').style.display = mode === 'url' ? 'flex' : 'none';
                 $('#charImagePaste').style.display = mode === 'paste' ? 'block' : 'none';
             }
             $('#modeUpload').addEventListener('click', () => setImageMode('upload'));
             $('#modeUrl').addEventListener('click', () => setImageMode('url'));
             $('#modePaste').addEventListener('click', () => setImageMode('paste'));
 
-            $('#charImageFile').addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        const maxW = 800;
-                        const scale = Math.min(1, maxW / img.width);
-                        const canvas = document.createElement('canvas');
-                        canvas.width = img.width * scale;
-                        canvas.height = img.height * scale;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        pendingImage = canvas.toDataURL('image/jpeg', 0.82);
-                        $('#previewImg').src = pendingImage;
-                        $('#previewRow').style.display = 'flex';
-                    };
-                    img.src = ev.target.result;
-                };
-                reader.readAsDataURL(file);
-            });
-            $('#charImageUrl').addEventListener('input', (e) => {
-                const val = e.target.value.trim();
-                if (val) {
-                    pendingImage = val;
-                    $('#previewImg').src = val;
-                    $('#previewRow').style.display = 'flex';
+            $('#charImageFile').addEventListener('change', async (e) => {
+                const files = Array.from(e.target.files || []);
+                statusMsg.textContent = files.length ? 'Processing photos…' : '';
+                for (const file of files) {
+                    try { await addImageFromFile(file); }
+                    catch (err) { console.error(err); }
                 }
+                statusMsg.textContent = '';
+                e.target.value = '';
             });
-            $('#charImagePaste').addEventListener('paste', (e) => {
+
+            $('#addUrlBtn').addEventListener('click', () => {
+                const val = $('#charImageUrl').value.trim();
+                if (!val) return;
+                addImageFromUrl(val);
+                $('#charImageUrl').value = '';
+            });
+            $('#charImageUrl').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); $('#addUrlBtn').click(); }
+            });
+
+            $('#charImagePaste').addEventListener('paste', async (e) => {
                 e.preventDefault();
                 const items = (e.clipboardData || window.clipboardData).items;
                 for (let i = 0; i < items.length; i++) {
                     const item = items[i];
                     if (item.type.indexOf('image') !== -1) {
                         const blob = item.getAsFile();
-                        const reader = new FileReader();
-                        reader.onload = (ev) => {
-                            const img = new Image();
-                            img.onload = () => {
-                                const maxW = 800;
-                                const scale = Math.min(1, maxW / img.width);
-                                const canvas = document.createElement('canvas');
-                                canvas.width = img.width * scale;
-                                canvas.height = img.height * scale;
-                                const ctx = canvas.getContext('2d');
-                                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                                pendingImage = canvas.toDataURL('image/jpeg', 0.82);
-                                $('#previewImg').src = pendingImage;
-                                $('#previewRow').style.display = 'flex';
-                            };
-                            img.src = ev.target.result;
-                        };
-                        reader.readAsDataURL(blob);
-                        break;
+                        try { await addImageFromBlob(blob); }
+                        catch (err) { console.error(err); }
                     }
                 }
             });
@@ -867,42 +1121,73 @@
             $('#charImagePaste').addEventListener('blur', () => {
                 $('#charImagePaste').style.borderColor = 'var(--paper-line)';
             });
-            $('#clearImgBtn').addEventListener('click', () => {
-                pendingImage = null;
-                $('#previewRow').style.display = 'none';
-                $('#charImageFile').value = '';
-                $('#charImageUrl').value = '';
-            });
 
             $('#cancelBtn').addEventListener('click', closeModal);
             overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
 
             const viewOverlay = $('#viewOverlay');
+            function renderViewImage() {
+                const imgEl = $('#viewImg');
+                const src = viewCharImages[viewIndex];
+                if (src) {
+                    imgEl.src = src;
+                    imgEl.style.filter = 'none';
+                } else {
+                    imgEl.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='38' r='18' fill='%23a89878'/><ellipse cx='50' cy='85' rx='32' ry='28' fill='%23a89878'/></svg>";
+                    imgEl.style.filter = 'sepia(0.12) contrast(1.02)';
+                }
+                const hasMultiple = viewCharImages.length > 1;
+                $('#viewPrevBtn').style.display = hasMultiple ? 'flex' : 'none';
+                $('#viewNextBtn').style.display = hasMultiple ? 'flex' : 'none';
+
+                const thumbs = $('#viewThumbs');
+                thumbs.innerHTML = '';
+                if (hasMultiple) {
+                    viewCharImages.forEach((src2, i) => {
+                        const t = document.createElement('img');
+                        t.src = src2;
+                        t.className = i === viewIndex ? 'active' : '';
+                        t.addEventListener('click', () => { viewIndex = i; renderViewImage(); });
+                        thumbs.appendChild(t);
+                    });
+                }
+            }
             function openViewModal(charId) {
                 const c = currentBookData.characters.find(x => x.id === charId);
                 if (!c) return;
-                
+
                 $('#viewName').textContent = c.name;
                 $('#viewAliases').textContent = c.aliases || '';
                 $('#viewAliases').style.display = c.aliases ? 'block' : 'none';
                 $('#viewNotes').textContent = c.notes || 'No notes added.';
                 $('#viewNotes').style.fontStyle = c.notes ? 'normal' : 'italic';
                 $('#viewNotes').style.opacity = c.notes ? '1' : '0.6';
-                
-                const imgEl = $('#viewImg');
-                if (c.image) {
-                    imgEl.src = c.image;
-                    imgEl.style.filter = 'none';
-                } else {
-                    imgEl.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='38' r='18' fill='%23a89878'/><ellipse cx='50' cy='85' rx='32' ry='28' fill='%23a89878'/></svg>";
-                    imgEl.style.filter = 'sepia(0.12) contrast(1.02)';
-                }
-                
+
+                viewCharImages = c.images && c.images.length ? c.images : [];
+                viewIndex = 0;
+                renderViewImage();
+
                 viewOverlay.classList.remove('hidden');
             }
             function closeViewModal() { viewOverlay.classList.add('hidden'); }
             $('#closeViewBtn').addEventListener('click', closeViewModal);
             viewOverlay.addEventListener('click', (e) => { if (e.target === viewOverlay) closeViewModal(); });
+            $('#viewPrevBtn').addEventListener('click', () => {
+                if (!viewCharImages.length) return;
+                viewIndex = (viewIndex - 1 + viewCharImages.length) % viewCharImages.length;
+                renderViewImage();
+            });
+            $('#viewNextBtn').addEventListener('click', () => {
+                if (!viewCharImages.length) return;
+                viewIndex = (viewIndex + 1) % viewCharImages.length;
+                renderViewImage();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (viewOverlay.classList.contains('hidden')) return;
+                if (e.key === 'ArrowLeft') $('#viewPrevBtn').click();
+                if (e.key === 'ArrowRight') $('#viewNextBtn').click();
+                if (e.key === 'Escape') closeViewModal();
+            });
 
             $('#saveCharBtn').addEventListener('click', async () => {
                 const name = $('#charName').value.trim();
@@ -912,15 +1197,16 @@
                 }
                 const aliases = $('#charAliases').value.trim();
                 const notes = $('#charNotes').value.trim();
+                const images = pendingImages.slice();
                 if (editingCharId) {
                     const c = currentBookData.characters.find(x => x.id === editingCharId);
-                    c.name = name; c.aliases = aliases; c.notes = notes; c.image = pendingImage || null;
+                    c.name = name; c.aliases = aliases; c.notes = notes; c.images = images;
                 } else {
-                    currentBookData.characters.push({ id: uid(), name, aliases, notes, image: pendingImage || null });
+                    currentBookData.characters.push({ id: uid(), name, aliases, notes, images });
                 }
                 const ok = await saveCurrentBookSafe();
                 if (!ok) {
-                    statusMsg.textContent = 'Could not save — try a smaller photo or a URL instead.';
+                    statusMsg.textContent = 'Could not save — try fewer photos, smaller photos, or a URL instead.';
                     return;
                 }
                 closeModal();
